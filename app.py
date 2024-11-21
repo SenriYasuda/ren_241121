@@ -17,6 +17,16 @@ def auto_delete_file(file_path, delay=600):
     if os.path.exists(file_path):
         os.remove(file_path)
 
+#新規s作成(listの為)
+@app.route("/list-files", methods=["GET"])
+def list_files():
+    try:
+        files = os.listdir(UPLOAD_FOLDER)
+        return jsonify({"files": files})
+    except FileNotFoundError:
+        return jsonify({"error": "Upload folder not found"}), 404
+
+
 @app.route("/")
 def home():
     return "Server is running!"
@@ -34,6 +44,7 @@ def upload_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(file_path)
 
+    print(f"ファイルパスは：{file_path}")
     # 自動削除のスレッド開始
     threading.Thread(target=auto_delete_file, args=(file_path,)).start()
 
