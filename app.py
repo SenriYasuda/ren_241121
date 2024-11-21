@@ -76,7 +76,7 @@ def get_result(filename):
     if not os.path.exists(file_path):
         return jsonify({"error": "File not found"}), 404
 
-    return send_file(file_path, mimetype="image/png")
+    return send_file(file_path, mimetype="image/jpg")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
