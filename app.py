@@ -17,6 +17,15 @@ def auto_delete_file(file_path, delay=600):
     if os.path.exists(file_path):
         os.remove(file_path)
 
+@app.route("/list-files", methods=["GET"])
+def list_files():
+    try:
+        files = os.listdir(UPLOAD_FOLDER)
+        return jsonify({"files": files})
+    except FileNotFoundError:
+        return jsonify({"error": "Upload folder not found"}), 404
+
+
 # 画像の取得エンドポイント
 @app.route('/get_image/<image_number>', methods=['GET'])
 def get_image(image_number):
