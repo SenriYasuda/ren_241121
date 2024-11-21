@@ -1,35 +1,57 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
+from werkzeug.utils import secure_filename
 import os
 import time
-from werkzeug.utils import secure_filename
+import threading
 
 app = Flask(__name__)
 
-# アップロード先のフォルダ
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+# ファイルの保存先ディレクトリ
+UPLOAD_FOLDER = "./uploads"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# アップロードファイルの拡張子を確認
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# 自動削除の設定（10分後に削除）
+def auto_delete_file(file_path, delay=600):
+    time.sleep(delay)
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
-# ゲーム結果を受け取るAPI
-@app.route('/upload_result', methods=['POST'])
-def upload_result():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+@app.route("/")
+def home():
+    return "Server is running!"
+
+# ファイルアップロード用エンドポイント
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    if 'file' not in request.files or 'text' not in request.form:
+        return jsonify({"error": "File and text data required"}), 400
+
+    # ファイル保存
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        time.sleep(600)  # 画像は10分後に削除
-        os.remove(filepath)
-        return jsonify({"message": "File uploaded successfully"}), 200
-    return jsonify({"error": "Invalid file format"}), 400
+    text = request.form['text']
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(file_path)
+
+    # 自動削除のスレッド開始
+    threading.Thread(target=auto_delete_file, args=(file_path,)).start()
+
+    # 保存データの確認
+    return jsonify({
+        "message": "File uploaded successfully",
+        "file_path": file_path,
+        "text": text
+    })
+
+# ファイル取得用エンドポイント
+@app.route("/get_result/<filename>", methods=["GET"])
+def get_result(filename):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found"}), 404
+
+    return send_file(file_path, mimetype="image/png")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
