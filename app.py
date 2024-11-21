@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 import time
@@ -17,7 +17,21 @@ def auto_delete_file(file_path, delay=600):
     if os.path.exists(file_path):
         os.remove(file_path)
 
-#新規s作成(listの為)
+# 画像の取得エンドポイント
+@app.route('/get_image/<image_number>', methods=['GET'])
+def get_image(image_number):
+    # 画像名を生成 (例えば: pic001.jpg, pic002.jpg, ...)
+    filename = f"pic{image_number.zfill(3)}.jpg"  # 数字をゼロ埋めしてフォーマット
+    # 画像が存在するか確認
+    if os.path.exists(os.path.join(UPLOAD_FOLDER, filename)):
+        # 存在する場合、その画像を返す
+        return send_from_directory(UPLOAD_FOLDER, filename)
+    else:
+        # 画像が存在しない場合、エラーメッセージを返す
+        return "No picture or over 10 minutes", 404
+
+
+#listの表示https://ren-241121.onrender.com/list-files
 @app.route("/list-files", methods=["GET"])
 def list_files():
     try:
