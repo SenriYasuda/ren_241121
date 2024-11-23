@@ -59,25 +59,33 @@ def get_text(text_number):
 # ファイルアップロード用エンドポイント
 @app.route("/upload", methods=["POST"])
 def upload_file():
-    if 'file' not in request.files or 'text' not in request.form:
-        return jsonify({"error": "File and text data required"}), 400
+    if 'file' not in request.files or 'text_file' not in request.files:
+        return jsonify({"error": "Image and text files are required"}), 400
 
-    # ファイル保存
-    file = request.files['file']
-    text = request.form['text']
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+    # 画像ファイル保存
+    image_file = request.files['file']
+    image_filename = secure_filename(image_file.filename)
+    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
+    image_file.save(image_path)
 
-    print(f"ファイルパスは：{file_path}")
+    # テキストファイル保存
+    text_file = request.files['text_file']
+    text_filename = secure_filename(text_file.filename)
+    text_path = os.path.join(app.config['UPLOAD_FOLDER'], text_filename)
+    text_file.save(text_path)
+
+    print(f"画像ファイルパス: {image_path}")
+    print(f"テキストファイルパス: {text_path}")
+
     # 自動削除のスレッド開始
-    threading.Thread(target=auto_delete_file, args=(file_path,)).start()
+    threading.Thread(target=auto_delete_file, args=(image_path,)).start()
+    threading.Thread(target=auto_delete_file, args=(text_path,)).start()
 
     # 保存データの確認
     return jsonify({
-        "message": "File uploaded successfully",
-        "file_path": file_path,
-        "text": text
+        "message": "Files uploaded successfully",
+        "image_path": image_path,
+        "text_path": text_path,
     })
 
 if __name__ == "__main__":
