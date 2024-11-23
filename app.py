@@ -29,7 +29,7 @@ def list_files():
 # 画像の取得エンドポイント
 @app.route('/get_image/<image_number>', methods=['GET'])
 def get_image(image_number):
-    # 画像名を生成 (例えば: pic001.jpg, pic002.jpg, ...)
+    # 画像名を生成
     filename = f"pic{image_number.zfill(3)}.jpg"  # 数字をゼロ埋めしてフォーマット
     # 画像が存在するか確認
     file_path = os.path.join(UPLOAD_FOLDER, filename)
@@ -40,21 +40,19 @@ def get_image(image_number):
         # 画像が存在しない場合、エラーメッセージを返す
         return "No picture or time up", 404
 
-@app.route('/upload_text', methods=['POST'])
-def upload_text():
-    global TEXT_DATA
-
-    # JSON形式で文字列を受け取る
-    data = request.get_json()
-    key = data.get('key')  # 文字列のキー
-    text = data.get('text')  # 保存する文字列
-
-    if not key or not text:
-        return jsonify({"error": "Key and text are required"}), 400
-
-    # テキストデータを保存
-    TEXT_DATA[key] = text
-    return jsonify({"message": "Text data uploaded successfully", "key": key}), 200
+# textの取得エンドポイント
+@app.route('/get_text/<text_number>', methods=['GET'])
+def get_text(text_number):
+    # 画像名を生成
+    filename = f"text{text_number.zfill(3)}.txt"  # 数字をゼロ埋めしてフォーマット
+    # 画像が存在するか確認
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    if os.path.exists(file_path):
+        # 存在する場合、その画像を返す
+        return send_file(file_path, mimetype="image/txt")  # mimetypeを変更
+    else:
+        # 画像が存在しない場合、エラーメッセージを返す
+        return "No text or time up", 404
 
 
 
