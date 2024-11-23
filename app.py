@@ -49,7 +49,7 @@ def get_text(text_number):
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path):
         # 存在する場合、その画像を返す
-        return send_file(file_path, mimetype="image/txt")  # mimetypeを変更
+        return send_file(file_path, mimetype="text/plain")  # mimetypeを変更
     else:
         # 画像が存在しない場合、エラーメッセージを返す
         return "No text or time up", 404
