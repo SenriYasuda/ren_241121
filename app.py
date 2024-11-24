@@ -40,26 +40,10 @@ def get_image(image_number):
         # 画像が存在しない場合、エラーメッセージを返す
         return "No picture or time up", 404
 
-# textの取得エンドポイント
-@app.route('/get_text/<text_number>', methods=['GET'])
-def get_text(text_number):
-    # 画像名を生成
-    filename = f"text{text_number.zfill(3)}.txt"  # 数字をゼロ埋めしてフォーマット
-    # 画像が存在するか確認
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    if os.path.exists(file_path):
-        # 存在する場合、その画像を返す
-        return send_file(file_path, mimetype="text/plain")  # mimetypeを変更
-    else:
-        # 画像が存在しない場合、エラーメッセージを返す
-        return "No text or time up", 404
-
-
-
 # ファイルアップロード用エンドポイント
 @app.route("/upload", methods=["POST"])
 def upload_file():
-    if 'file' not in request.files or 'text_file' not in request.files:
+    if 'file' not in request.files:
         return jsonify({"error": "Image and text files are required"}), 400
 
     # 画像ファイル保存
@@ -69,23 +53,23 @@ def upload_file():
     image_file.save(image_path)
 
     # テキストファイル保存
-    text_file = request.files['text_file']
-    text_filename = secure_filename(text_file.filename)
-    text_path = os.path.join(app.config['UPLOAD_FOLDER'], text_filename)
-    text_file.save(text_path)
+    #text_file = request.files['text_file']
+    #text_filename = secure_filename(text_file.filename)
+    #text_path = os.path.join(app.config['UPLOAD_FOLDER'], text_filename)
+    #text_file.save(text_path)
 
     print(f"画像ファイルパス: {image_path}")
-    print(f"テキストファイルパス: {text_path}")
+    #print(f"テキストファイルパス: {text_path}")
 
     # 自動削除のスレッド開始
     threading.Thread(target=auto_delete_file, args=(image_path,)).start()
-    threading.Thread(target=auto_delete_file, args=(text_path,)).start()
+    #threading.Thread(target=auto_delete_file, args=(text_path,)).start()
 
     # 保存データの確認
     return jsonify({
         "message": "Files uploaded successfully",
         "image_path": image_path,
-        "text_path": text_path,
+        #"text_path": text_path,
     })
 
 if __name__ == "__main__":
