@@ -30,7 +30,7 @@ def list_files():
 @app.route('/get_image/<image_number>', methods=['GET'])
 def get_image(image_number):
     # 画像名を生成
-    filename = f"pic{image_number.zfill(3)}.jpg"  # 数字をゼロ埋めしてフォーマット
+    filename = f"pic{image_number.zfill(3)}.*\.jpg"  # 数字をゼロ埋めしてフォーマット
     # 画像が存在するか確認
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path):
@@ -48,7 +48,7 @@ def upload_file():
 
     # 画像ファイル保存
     image_file = request.files['file']
-    image_filename = secure_filename(image_file.filename)
+    image_filename = image_file.filename  # ファイル名をそのまま使用
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
     image_file.save(image_path)
 
