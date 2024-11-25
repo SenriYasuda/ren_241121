@@ -40,6 +40,24 @@ def get_image(image_number):
     else:
         # ファイルが見つからない場合のエラー
         return "No picture or time up", 404
+    
+
+# 画像の名前の取得エンドポイント
+@app.route('/get_image_name/<image_number>', methods=['GET'])
+def get_image(image_number):
+    # 対応するファイルを検索
+    search_pattern = os.path.join(UPLOAD_FOLDER, f"pic{image_number.zfill(3)}*")
+    matching_files = glob.glob(search_pattern)
+    if matching_files:
+        # 一致する最初のファイルを返す
+        file_name = os.path.basename(matching_files[0])  # ファイルのパスからファイル名だけを抽出
+        return file_name  # ファイル名を返す
+    else:
+        # ファイルが見つからない場合のエラー
+        return "No picture name or time up", 404
+
+
+
 # ファイルアップロード用エンドポイント
 @app.route("/upload", methods=["POST"])
 def upload_file():
