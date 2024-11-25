@@ -44,7 +44,7 @@ def get_image(image_number):
 
 # 画像の名前の取得エンドポイント
 @app.route('/get_image_name/<image_number>', methods=['GET'])
-def get_image(image_number):
+def get_image_name(image_number):
     # 対応するファイルを検索
     search_pattern = os.path.join(UPLOAD_FOLDER, f"pic{image_number.zfill(3)}*")
     matching_files = glob.glob(search_pattern)
