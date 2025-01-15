@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, Respose
 from werkzeug.utils import secure_filename
 from flask import Flask
 from flask_socketio import SocketIO
@@ -52,6 +52,21 @@ def get_image(text_number):
     else:
         return "No text or time up", 404
 
+# textの中身を取得するエンドポイント
+@app.route('/get_text_in/<text_number_in>', methods=['GET'])
+def get_text(text_number):
+    search_pattern = os.path.join(UPLOAD_FOLDER, f"text{text_number.zfill(3)}*.txt")
+    matching_files = glob.glob(search_pattern)
+    if matching_files:
+        file_path = matching_files[0]
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+            return Response(content, mimetype="text/plain")
+        except Exception as e:
+            return f"Error reading file: {e}", 500
+    else:
+        return "No text or time up", 404
 
 
 # ファイルアップロード用エンドポイント
