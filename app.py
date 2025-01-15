@@ -48,7 +48,7 @@ def get_image(text_number):
     search_pattern = os.path.join(UPLOAD_FOLDER, f"text{text_number.zfill(3)}*")
     matching_files = glob.glob(search_pattern)
     if matching_files:
-        return send_file(matching_files[0], mimetype="image/jpeg")
+        return send_file(matching_files[0], mimetype="text/plain")
     else:
         return "No text or time up", 404
 
