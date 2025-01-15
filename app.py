@@ -42,6 +42,17 @@ def get_image(image_number):
     else:
         return "No picture or time up", 404
 
+# textの取得エンドポイント
+@app.route('/get_text/<text_number>', methods=['GET'])
+def get_image(text_number):
+    search_pattern = os.path.join(UPLOAD_FOLDER, f"text{text_number.zfill(3)}*")
+    matching_files = glob.glob(search_pattern)
+    if matching_files:
+        return send_file(matching_files[0], mimetype="image/jpeg")
+    else:
+        return "No text or time up", 404
+
+
 
 # ファイルアップロード用エンドポイント
 @app.route("/upload", methods=["POST"])
